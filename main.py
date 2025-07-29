@@ -16,16 +16,14 @@ def input_page():
     if request.method == "POST":
         user_input = request.form["user_input"]
         submitted = True
-    print(user_input)
+    # print(user_input)
     gpt_response=text_to_data(user_input)
 
     #gpt_response to DF
+    json_res=gpt_to_data(gpt_response)
+    table_html = data_to_html_table(json_res)
 
-    extracted_data= gpt_to_df(gpt_response)
-    print(extracted_data)
-
-    table_html = extracted_data.to_html(classes='table table-bordered', index=False)
-    pie_chart_html=df_to_pie(extracted_data)
+    pie_chart_html=data_to_pie_chart(json_res)
 
 
     return render_template_string(html, submitted=submitted, user_input=user_input,
