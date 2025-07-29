@@ -1,5 +1,4 @@
 flask
-base64
 io
 matplotlib
 pandas
