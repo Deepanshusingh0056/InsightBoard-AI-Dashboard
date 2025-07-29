@@ -1,0 +1,7 @@
+flask
+base64
+io
+matplotlib
+pandas
+json
+requests
