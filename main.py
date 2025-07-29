@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template_string
 from web_page import *
 from helper import * 
-import pandas as pd
+
 
 
 app = Flask(__name__)
