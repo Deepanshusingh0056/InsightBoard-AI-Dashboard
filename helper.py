@@ -61,37 +61,61 @@ def text_to_data(transcript):
     response = requests.post(url, headers=headers, json=data)
     return response 
 
-def gpt_to_df(response):
+def gpt_to_data(response):
     
     try :
+        print(response)
         output =response.json()
+        print(output)
         res=output['candidates'][0]['content']['parts'][0]['text']
         res=res.replace('json','').replace('\n','').replace('`','')
         data = json.loads(res)
-        df=pd.DataFrame(data)
-
-        return df
+        return data
     except Exception as e :
         print(e)
-    return pd.DataFrame(columns=['title','status','priority'])
+    return {}
+
+def data_to_html_table(data):
+    if not data:
+        return "<p>No data extracted.</p>"
+
+    headers = data[0].keys()
+    html = '<table class="table table-bordered"><thead><tr>'
+    html += ''.join(f"<th>{header}</th>" for header in headers)
+    html += "</tr></thead><tbody>"
+
+    for row in data:
+        html += "<tr>"
+        html += ''.join(f"<td>{row.get(header, '')}</td>" for header in headers)
+        html += "</tr>"
+
+    html += "</tbody></table>"
+    return html
 
 
+def data_to_pie_chart(data):
+    if not data:
+        return "<p>No chart available.</p>"
 
-def df_to_pie(df):
-    status_counts = df['status'].value_counts()
-    print(status_counts)
-    # Generate pie chart
+    status_counts = {}
+    for item in data:
+        status = item.get('status', 'Unknown')
+        status_counts[status] = status_counts.get(status, 0) + 1
+
     fig, ax = plt.subplots()
-    ax.pie(status_counts, labels=status_counts.index, autopct='%1.1f%%', startangle=140)
+    ax.pie(
+        status_counts.values(),
+        labels=status_counts.keys(),
+        autopct='%1.1f%%',
+        startangle=140
+    )
     ax.set_title("Task Status Distribution")
 
-    # Save figure to a byte stream and encode as base64
     img_stream = io.BytesIO()
     plt.savefig(img_stream, format='png')
     img_stream.seek(0)
     pie_chart_base64 = base64.b64encode(img_stream.getvalue()).decode()
     pie_chart_html = f'<img src="data:image/png;base64,{pie_chart_base64}" alt="Task Progress Pie Chart">'
     plt.close()
-    return pie_chart_html
 
-# Display the response
+    return pie_chart_html
